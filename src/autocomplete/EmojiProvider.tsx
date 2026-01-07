@@ -25,7 +25,7 @@ import SettingsStore from "../settings/SettingsStore";
 import { type TimelineRenderingType } from "../contexts/RoomContext";
 import * as recent from "../emojipicker/recent";
 import { filterBoolean } from "../utils/arrays";
-import { type MSC2545ImagePack } from "../components/views/emojipicker/EmojiPack";
+import { getImagePacksForRoom, type MSC2545ImagePack } from "../components/views/emojipicker/EmojiPack";
 import { mediaFromMxc } from "../customisations/Media";
 
 const LIMIT = 20;
@@ -78,20 +78,16 @@ export default class EmojiProvider extends AutocompleteProvider {
     public constructor(room: Room, renderingType?: TimelineRenderingType) {
         super({ commandRegex: EMOJI_REGEX, renderingType });
 
-        // Get the state events for im.ponies.room_emotes
-        const events = room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getStateEvents("im.ponies.room_emotes");
+        const imagePacks = getImagePacksForRoom(room);
         const customEmojis: Emoji[] = [];
-        for(const event of events ?? []) {
-            const content = event.getContent();
-            if(content) {
-                for(const [key, image] of Object.entries((content as MSC2545ImagePack).images)) {
-                    customEmojis.push({
-                        unicode: `<img src="${image.url}" alt="${key}" height="32" />`,
-                        label: key,
-                        shortcodes: [key],
-                        hexcode: key
-                    });
-                }
+        for(const pack of imagePacks ?? []) {
+            for(const [key, image] of Object.entries(pack.images)) {
+                customEmojis.push({
+                    unicode: `<img src="${image.url}" alt="${key}" height="32" />`,
+                    label: key,
+                    shortcodes: [key],
+                    hexcode: key
+                });
             }
         }
 

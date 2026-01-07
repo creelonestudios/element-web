@@ -56,7 +56,7 @@ import { type MatrixClientProps, withMatrixClientHOC } from "../../../contexts/M
 import { UIFeature } from "../../../settings/UIFeature";
 import { formatTimeLeft } from "../../../DateUtils";
 import RoomReplacedSvg from "../../../../res/img/room_replaced.svg";
-import { type MSC2545ImagePack } from "../emojipicker/EmojiPack";
+import { getImagePacksForRoom, type MSC2545ImagePack } from "../emojipicker/EmojiPack";
 import { textSerialize } from "../../../editor/serialize";
 
 // The prefix used when persisting editor drafts to localstorage.
@@ -679,28 +679,25 @@ export class MessageComposer extends React.Component<IProps, IState> {
             "mx_MessageComposer_wysiwyg": this.state.isWysiwygLabEnabled,
         });
 
-        // Get the state events for im.ponies.room_emotes
-        const events = this.props.room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getStateEvents("im.ponies.room_emotes");
-        console.log("Room emotes state events: ", events);
-				const emojiPacks = events?.map(event => event.getContent()).map(p => p as MSC2545ImagePack).map(p => {
-					if(!p.pack.usage || p.pack.usage.includes("emoticon")) {
-						// Pack uses emojis
-						p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
-							if(!i.usage) return true; // no usage = default to pack usage
-							if(i.usage.includes("emoticon")) return true;
-							return false; // its a sticker only
-						}));
-						return p;
-					}
-					
-					// Its a sticker pack
-					p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
-						if(!i.usage) return false; // no usage = sticker
-						if(i.usage.includes("emoticon")) return true;
-						return false; // just a sticker
-					}));
-					return p;
-				}) ?? []
+        const emojiPacks = getImagePacksForRoom(this.props.room).map(p => {
+            if(!p.pack.usage || p.pack.usage.includes("emoticon")) {
+                // Pack uses emojis
+                p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
+                    if(!i.usage) return true; // no usage = default to pack usage
+                    if(i.usage.includes("emoticon")) return true;
+                    return false; // its a sticker only
+                }));
+                return p;
+            }
+            
+            // Its a sticker pack
+            p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
+                if(!i.usage) return false; // no usage = sticker
+                if(i.usage.includes("emoticon")) return true;
+                return false; // just a sticker
+            }));
+            return p;
+        }) ?? []
 
         return (
             <Tooltip open={isTooltipOpen} description={formatTimeLeft(secondsLeft)} placement="bottom">
