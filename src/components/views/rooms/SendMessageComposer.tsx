@@ -549,7 +549,13 @@ export class SendMessageComposer extends React.Component<ISendMessageComposerPro
                 } else if (payload.event) {
                     this.editorRef.current?.insertQuotedMessage(payload.event);
                 } else if (payload.text) {
-                    this.editorRef.current?.insertPlaintext(payload.text);
+                    // If the payload indicates an HTML-insert command (prefix `/html `),
+                    // prepend it to the start of the composer instead of inserting at caret.
+                    if (payload.text.startsWith("/html ") && this.editorRef.current?.insertPlaintextAtStart) {
+                        this.editorRef.current.insertPlaintextAtStart(payload.text);
+                    } else {
+                        this.editorRef.current?.insertPlaintext(payload.text);
+                    }
                 }
                 break;
         }

@@ -28,6 +28,7 @@ import {
 import { Key } from "../../../Keyboard";
 import { clamp } from "../../../../packages/shared-components/src/utils/numbers";
 import { type ButtonEvent } from "../elements/AccessibleButton";
+import { MSC2545ImagePack } from "./EmojiPack";
 
 export const CATEGORY_HEADER_HEIGHT = 20;
 export const EMOJI_HEIGHT = 35;
@@ -37,6 +38,7 @@ const ZERO_WIDTH_JOINER = "\u200D";
 
 interface IProps {
     selectedEmojis?: Set<string>;
+    emojiPacks?: MSC2545ImagePack[];
     onChoose(unicode: string): boolean;
     onFinished(): void;
     isEmojiDisabled?: (unicode: string) => boolean;
@@ -61,6 +63,7 @@ class EmojiPicker extends React.Component<IProps, IState> {
 
     public constructor(props: IProps) {
         super(props);
+        console.log("EmojiPicker props", props);
 
         this.state = {
             filter: "",
@@ -68,10 +71,35 @@ class EmojiPicker extends React.Component<IProps, IState> {
             viewportHeight: 280,
         };
 
+        const emojiPackCategories: Record<string, IEmoji[]> = {};
+
+        for (const pack of props.emojiPacks ?? []) {
+            emojiPackCategories[(pack.pack.display_name ?? "Unknown") + "-custom"] = Object.entries(pack.images).map(([key, i]) => {
+                return {
+                    hexcode: "FF",
+                    label: key,
+                    shortcodes: [key],
+                    unicode: `<img src="${i.url}" height="32" />`
+                };
+            })
+        }
+
+        const emojiPackCategoryData: Record<string, ICategory> = {};
+        for (const category of (props.emojiPacks ?? [])) {
+            emojiPackCategoryData["custom-" + (category.pack.display_name ?? "Unknown")] = {
+                id: (category.pack.display_name ?? "Unknown") + "-custom",
+                name: category.pack.display_name ?? "Unknown",
+                enabled: true,
+                visible: false,
+                ref: React.createRef(),
+            };
+        }
+
         // Convert recent emoji characters to emoji data, removing unknowns and duplicates
         this.recentlyUsed = Array.from(new Set(filterBoolean(recent.get().map(getEmojiFromUnicode))));
         this.memoizedDataByCategory = {
             recent: this.recentlyUsed,
+            ...emojiPackCategories,
             ...DATA_BY_CATEGORY,
         };
 
@@ -83,6 +111,7 @@ class EmojiPicker extends React.Component<IProps, IState> {
                 visible: this.recentlyUsed.length > 0,
                 ref: React.createRef(),
             },
+            ...Object.values(emojiPackCategoryData),
             {
                 id: "people",
                 name: _t("emoji|category_smileys_people"),

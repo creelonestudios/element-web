@@ -14,14 +14,16 @@ import ContextMenu, { aboveLeftOf, type MenuProps, useContextMenu } from "../../
 import EmojiPicker from "../emojipicker/EmojiPicker";
 import { CollapsibleButton } from "./CollapsibleButton";
 import { OverflowMenuContext } from "./MessageComposerButtons";
+import { MSC2545ImagePack } from "../emojipicker/EmojiPack";
 
 interface IEmojiButtonProps {
     addEmoji: (unicode: string) => boolean;
+    emojiPacks: MSC2545ImagePack[];
     menuPosition?: MenuProps;
     className?: string;
 }
 
-export function EmojiButton({ addEmoji, menuPosition, className }: IEmojiButtonProps): JSX.Element {
+export function EmojiButton({ addEmoji, menuPosition, className, emojiPacks }: IEmojiButtonProps): JSX.Element {
     const overflowMenuCloser = useContext(OverflowMenuContext);
     const [menuDisplayed, button, openMenu, closeMenu] = useContextMenu();
 
@@ -35,7 +37,7 @@ export function EmojiButton({ addEmoji, menuPosition, className }: IEmojiButtonP
 
         contextMenu = (
             <ContextMenu {...position} onFinished={onFinished} managed={false}>
-                <EmojiPicker onChoose={addEmoji} onFinished={onFinished} />
+                <EmojiPicker onChoose={addEmoji} onFinished={onFinished} emojiPacks={emojiPacks} />
             </ContextMenu>
         );
     }

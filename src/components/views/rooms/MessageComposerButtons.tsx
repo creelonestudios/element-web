@@ -35,9 +35,11 @@ import { filterBoolean } from "../../../utils/arrays";
 import { useSettingValue } from "../../../hooks/useSettings";
 import AccessibleButton, { type ButtonEvent } from "../elements/AccessibleButton";
 import { useScopedRoomContext } from "../../../contexts/ScopedRoomContext.tsx";
+import { MSC2545ImagePack } from "../emojipicker/EmojiPack.ts";
 
 interface IProps {
     addEmoji: (emoji: string) => boolean;
+    emojiPacks: MSC2545ImagePack[];
     haveRecording: boolean;
     isMenuOpen: boolean;
     isStickerPickerOpen: boolean;
@@ -148,6 +150,7 @@ function emojiButton(props: IProps): ReactElement {
         <EmojiButton
             key="emoji_button"
             addEmoji={props.addEmoji}
+            emojiPacks={props.emojiPacks}
             menuPosition={props.menuPosition}
             className="mx_MessageComposer_button"
         />

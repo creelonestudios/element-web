@@ -912,4 +912,17 @@ export default class BasicMessageEditor extends React.Component<IProps, IState> 
             return model.positionForOffset(caret.offset + addedLen, true);
         });
     }
+
+    // Insert plaintext at the start of the composer (prepend).
+    public insertPlaintextAtStart(text: string): void {
+        this.modifiedFlag = true;
+        const { model } = this.props;
+        const { partCreator } = model;
+        const caret = this.getCaret();
+        model.transform(() => {
+            const addedLen = model.insert(partCreator.plainWithEmoji(text), model.positionForOffset(0));
+            return model.positionForOffset(caret.offset + addedLen, true);
+        });
+        this.focus();
+    }
 }

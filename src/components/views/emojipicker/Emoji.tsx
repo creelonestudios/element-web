@@ -8,6 +8,7 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React from "react";
+import { mediaFromMxc } from "../../../customisations/Media";
 import { type Emoji as IEmoji } from "@matrix-org/emojibase-bindings";
 
 import { type ButtonEvent } from "../elements/AccessibleButton";
@@ -40,7 +41,20 @@ class Emoji extends React.PureComponent<IProps> {
                 focusOnMouseOver
             >
                 <div className={`mx_EmojiPicker_item ${isSelected ? "mx_EmojiPicker_item_selected" : ""}`}>
-                    {emoji.unicode}
+                    {emoji.unicode.startsWith("<img") ? (
+                        (() => {
+                            const src = emoji.unicode.match(/src="([^"]+)"/)?.[1];
+                            if (!src) return null;
+                            if (src.startsWith("mxc://")) {
+                                const media = mediaFromMxc(src);
+                                const thumb = media.getSquareThumbnailHttp(32) ?? media.srcHttp;
+                                return <img src={thumb ?? undefined} height="32" alt="" />;
+                            }
+                            return <img src={src} height="32" alt="" />;
+                        })()
+                    ) : (
+                        emoji.unicode
+                    )}
                 </div>
             </RovingAccessibleButton>
         );

@@ -55,6 +55,9 @@ import { type MatrixClientProps, withMatrixClientHOC } from "../../../contexts/M
 import { UIFeature } from "../../../settings/UIFeature";
 import { formatTimeLeft } from "../../../DateUtils";
 import RoomReplacedSvg from "../../../../res/img/room_replaced.svg";
+import { EventTimeline } from "matrix-js-sdk/src/matrix";
+import { MSC2545ImagePack } from "../emojipicker/EmojiPack";
+import { textSerialize } from "../../../editor/serialize";
 
 // The prefix used when persisting editor drafts to localstorage.
 export const WYSIWYG_EDITOR_STATE_STORAGE_PREFIX = "mx_wysiwyg_state_";
@@ -381,6 +384,19 @@ export class MessageComposer extends React.Component<IProps, IState> {
     };
 
     private addEmoji = (emoji: string): boolean => {
+        if(emoji.startsWith("<img")) {
+            // custom emoji, needs to be inserted as HTML
+            // check if it already starts with /html
+            const currentContent = this.state.isWysiwygLabEnabled ? this.state.composerContent : (this.messageComposerInput.current as any)?.model ? textSerialize((this.messageComposerInput.current as any).model) : "";
+            console.log("Current content", currentContent);
+            if(!currentContent.includes("/html ")) {
+                dis.dispatch<ComposerInsertPayload>({
+                    action: Action.ComposerInsert,
+                    text: "/html ",
+                    timelineRenderingType: this.context.timelineRenderingType,
+                });
+            }
+        }
         dis.dispatch<ComposerInsertPayload>({
             action: Action.ComposerInsert,
             text: emoji,
@@ -663,6 +679,29 @@ export class MessageComposer extends React.Component<IProps, IState> {
             "mx_MessageComposer_wysiwyg": this.state.isWysiwygLabEnabled,
         });
 
+        // Get the state events for im.ponies.room_emotes
+        const events = this.props.room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getStateEvents("im.ponies.room_emotes");
+        console.log("Room emotes state events: ", events);
+				const emojiPacks = events?.map(event => event.getContent()).map(p => p as MSC2545ImagePack).map(p => {
+					if(!p.pack.usage || p.pack.usage.includes("emoticon")) {
+						// Pack uses emojis
+						p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
+							if(!i.usage) return true; // no usage = default to pack usage
+							if(i.usage.includes("emoticon")) return true;
+							return false; // its a sticker only
+						}));
+						return p;
+					}
+					
+					// Its a sticker pack
+					p.images = Object.fromEntries(Object.entries(p.images).filter(([key, i]) => {
+						if(!i.usage) return false; // no usage = sticker
+						if(i.usage.includes("emoticon")) return true;
+						return false; // just a sticker
+					}));
+					return p;
+				}) ?? []
+
         return (
             <Tooltip open={isTooltipOpen} description={formatTimeLeft(secondsLeft)} placement="bottom">
                 <div className={classes} ref={this.ref} role="region" aria-label={_t("a11y|message_composer")}>
@@ -680,6 +719,7 @@ export class MessageComposer extends React.Component<IProps, IState> {
                                 {canSendMessages && (
                                     <MessageComposerButtons
                                         addEmoji={this.addEmoji}
+                                        emojiPacks={emojiPacks}
                                         haveRecording={this.state.haveRecording}
                                         isMenuOpen={this.state.isMenuOpen}
                                         isStickerPickerOpen={this.state.isStickerPickerOpen}
