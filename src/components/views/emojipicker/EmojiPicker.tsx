@@ -28,7 +28,7 @@ import {
 import { Key } from "../../../Keyboard";
 import { clamp } from "../../../../packages/shared-components/src/utils/numbers";
 import { type ButtonEvent } from "../elements/AccessibleButton";
-import { MSC2545ImagePack } from "./EmojiPack";
+import type { MSC2545ImagePack } from "./EmojiPack";
 
 export const CATEGORY_HEADER_HEIGHT = 20;
 export const EMOJI_HEIGHT = 35;

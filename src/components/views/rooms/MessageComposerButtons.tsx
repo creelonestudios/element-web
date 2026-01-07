@@ -35,7 +35,7 @@ import { filterBoolean } from "../../../utils/arrays";
 import { useSettingValue } from "../../../hooks/useSettings";
 import AccessibleButton, { type ButtonEvent } from "../elements/AccessibleButton";
 import { useScopedRoomContext } from "../../../contexts/ScopedRoomContext.tsx";
-import { MSC2545ImagePack } from "../emojipicker/EmojiPack.ts";
+import { type MSC2545ImagePack } from "../emojipicker/EmojiPack.ts";
 
 interface IProps {
     addEmoji: (emoji: string) => boolean;

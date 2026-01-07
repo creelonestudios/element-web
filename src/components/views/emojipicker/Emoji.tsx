@@ -8,11 +8,12 @@ Please see LICENSE files in the repository root for full details.
 */
 
 import React from "react";
-import { mediaFromMxc } from "../../../customisations/Media";
 import { type Emoji as IEmoji } from "@matrix-org/emojibase-bindings";
 
+import { mediaFromMxc } from "../../../customisations/Media";
 import { type ButtonEvent } from "../elements/AccessibleButton";
 import { RovingAccessibleButton } from "../../../accessibility/RovingTabIndex";
+
 
 interface IProps {
     emoji: IEmoji;

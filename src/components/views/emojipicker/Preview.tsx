@@ -7,8 +7,9 @@ SPDX-License-Identifier: AGPL-3.0-only OR GPL-3.0-only OR LicenseRef-Element-Com
 Please see LICENSE files in the repository root for full details.
 */
 
-import React from "react";
 import { type Emoji } from "@matrix-org/emojibase-bindings";
+import React from "react";
+
 import { mediaFromMxc } from "../../../customisations/Media";
 
 interface IProps {

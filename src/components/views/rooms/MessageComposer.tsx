@@ -20,6 +20,7 @@ import { type Optional } from "matrix-events-sdk";
 import { Tooltip } from "@vector-im/compound-web";
 import { logger } from "matrix-js-sdk/src/logger";
 import { LockOffIcon } from "@vector-im/compound-design-tokens/assets/web/icons";
+import { EventTimeline } from "matrix-js-sdk/src/matrix";
 
 import { _t } from "../../../languageHandler";
 import { MatrixClientPeg } from "../../../MatrixClientPeg";
@@ -55,8 +56,7 @@ import { type MatrixClientProps, withMatrixClientHOC } from "../../../contexts/M
 import { UIFeature } from "../../../settings/UIFeature";
 import { formatTimeLeft } from "../../../DateUtils";
 import RoomReplacedSvg from "../../../../res/img/room_replaced.svg";
-import { EventTimeline } from "matrix-js-sdk/src/matrix";
-import { MSC2545ImagePack } from "../emojipicker/EmojiPack";
+import { type MSC2545ImagePack } from "../emojipicker/EmojiPack";
 import { textSerialize } from "../../../editor/serialize";
 
 // The prefix used when persisting editor drafts to localstorage.

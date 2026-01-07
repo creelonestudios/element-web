@@ -14,7 +14,7 @@ import ContextMenu, { aboveLeftOf, type MenuProps, useContextMenu } from "../../
 import EmojiPicker from "../emojipicker/EmojiPicker";
 import { CollapsibleButton } from "./CollapsibleButton";
 import { OverflowMenuContext } from "./MessageComposerButtons";
-import { MSC2545ImagePack } from "../emojipicker/EmojiPack";
+import { type MSC2545ImagePack } from "../emojipicker/EmojiPack";
 
 interface IEmojiButtonProps {
     addEmoji: (unicode: string) => boolean;
